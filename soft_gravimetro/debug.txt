@@ -1,0 +1,158 @@
+---- Resolviendo dirección del servidor...
+---- 1 address found: 88.2.245.55
+---- Conectándose a 88.2.245.55 (88.2.245.55) port 21
+<--- 220-FTP Servercan CGC.
+<--- 220 IGN Users
+---> FEAT
+<--- 211-Extensions supported:
+<---  CLNT
+<---  UTF8
+<---  EPRT
+<---  EPSV
+<---  LIST -laT
+<---  MDTM
+<---  MDTM YYYYMMDDHHMMSS filename
+<---  MFF Modify;
+<---  MFMT
+<---  MLSD
+<---  MLST size*;Type*;Modify*;
+<---  REST STREAM
+<---  SITE ZONE;UTIME
+<---  SIZE
+<---  SPSV
+<---  STAT -laT
+<---  TVFS
+<---  XCRC "[file-name]" [start] [finish]
+<---  XMD5 "[file-name]" [start] [finish]
+<---  Compliance Level: 20020901 (IETF mlst-16)
+<--- 211 End of extensions.
+---> CLNT lftp/4.3.6
+<--- 200 Noted.
+---> OPTS UTF8 ON
+<--- 200 UTF8 ON
+---> USER ign_grav_izana
+<--- 331 User name received, need password.
+---> PASS svv-teide
+<--- 530 Account disabled
+---> PWD
+**** control-socket: Conexión reinicializada por la máquina remota
+---- Cerrando socket de control
+---- Conectándose a 88.2.245.55 (88.2.245.55) port 21
+**** Tiempo fuera - reconectando
+---- Cerrando socket de control
+---- Conectándose a 88.2.245.55 (88.2.245.55) port 21
+**** Tiempo fuera - reconectando
+---- Cerrando socket de control
+---- Conectándose a 88.2.245.55 (88.2.245.55) port 21
+**** Tiempo fuera - reconectando
+---- Cerrando socket de control
+---- Conectándose a 88.2.245.55 (88.2.245.55) port 21
+<--- 220-FTP Servercan CGC.
+<--- 220 IGN Users
+---> FEAT
+<--- 211-Extensions supported:
+<---  CLNT
+<---  UTF8
+<---  EPRT
+<---  EPSV
+<---  LIST -laT
+<---  MDTM
+<---  MDTM YYYYMMDDHHMMSS filename
+<---  MFF Modify;
+<---  MFMT
+<---  MLSD
+<---  MLST size*;Type*;Modify*;
+<---  REST STREAM
+<---  SITE ZONE;UTIME
+<---  SIZE
+<---  SPSV
+<---  STAT -laT
+<---  TVFS
+<---  XCRC "[file-name]" [start] [finish]
+<---  XMD5 "[file-name]" [start] [finish]
+<---  Compliance Level: 20020901 (IETF mlst-16)
+<--- 211 End of extensions.
+---> CLNT lftp/4.3.6
+<--- 200 Noted.
+---> OPTS UTF8 ON
+<--- 200 UTF8 ON
+---> USER ign_grav_izana
+<--- 331 User name received, need password.
+---> PASS svv-teide
+<--- 530 Account disabled
+---> PWD
+**** control-socket: Conexión reinicializada por la máquina remota
+---- Cerrando socket de control
+---- Conectándose a 88.2.245.55 (88.2.245.55) port 21
+**** Tiempo fuera - reconectando
+---- Cerrando socket de control
+---- Conectándose a 88.2.245.55 (88.2.245.55) port 21
+**** Tiempo fuera - reconectando
+---- Cerrando socket de control
+---- Conectándose a 88.2.245.55 (88.2.245.55) port 21
+**** Tiempo fuera - reconectando
+---- Cerrando socket de control
+---- Conectándose a 88.2.245.55 (88.2.245.55) port 21
+**** Tiempo fuera - reconectando
+---- Cerrando socket de control
+---- Conectándose a 88.2.245.55 (88.2.245.55) port 21
+**** Tiempo fuera - reconectando
+---- Cerrando socket de control
+---- Conectándose a 88.2.245.55 (88.2.245.55) port 21
+**** Tiempo fuera - reconectando
+---- Cerrando socket de control
+0 Login incorrect.
+---> PWD
+**** El otro extremo cerró la conexión
+---- Cerrando socket de control
+---- Conectándose a 65.254.250.102 (65.254.250.102) port 21
+<--- 220-
+<--- 220 Powweb FTP Server ready
+---> FEAT
+<--- 211-Features:
+<---  MDTM
+<---  MFMT
+<---  TVFS
+<---  MFF modify;UNIX.group;UNIX.mode;
+<---  MLST modify*;perm*;size*;type*;unique*;UNIX.group*;UNIX.mode*;UNIX.owner*;
+<---  SITE MKDIR
+<---  SITE RMDIR
+<---  SITE UTIME
+<---  SITE SYMLINK
+<---  REST STREAM
+<---  SIZE
+<--- 211 End
+---> OPTS MLST modify;perm;size;type;UNIX.group;UNIX.mode;UNIX.owner;
+<--- 200 OPTS MLST modify;perm;size;type;UNIX.group;UNIX.mode;UNIX.owner;
+---> USER admoure
+<--- 331 Password required for admoure
+---> PASS &admoure11
+<--- 530 Login incorrect.
+---> PWD
+---- Conectándose a 65.254.250.102 (65.254.250.102) port 21
+<--- 220-
+<--- 220 Powweb FTP Server ready
+---> FEAT
+<--- 211-Features:
+<---  MDTM
+<---  MFMT
+<---  TVFS
+<---  MFF modify;UNIX.group;UNIX.mode;
+<---  MLST modify*;perm*;size*;type*;unique*;UNIX.group*;UNIX.mode*;UNIX.owner*;
+<---  SITE MKDIR
+<---  SITE RMDIR
+<---  SITE UTIME
+<---  SITE SYMLINK
+<---  REST STREAM
+<---  SIZE
+<--- 211 End
+---> OPTS MLST modify;perm;size;type;UNIX.group;UNIX.mode;UNIX.owner;
+<--- 200 OPTS MLST modify;perm;size;type;UNIX.group;UNIX.mode;UNIX.owner;
+---> USER admoure
+<--- 331 Password required for admoure
+---> PASS &admoure11
+<--- 530 Login incorrect.
+---> PWD
+**** El otro extremo cerró la conexión
+---- Cerrando socket de control
+---- Cerrando socket de control

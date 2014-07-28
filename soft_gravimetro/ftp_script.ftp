@@ -1,0 +1,14 @@
+debug -o debug.txt
+set net:timeout 10
+set net:max-retries 2 
+set net:reconnect-interval-base 5
+set net:reconnect-interval-multiplier 1
+open 88.2.245.55
+user ign_grav_izana "svv-teide"
+cd gravimetro2
+put /media/CAM/datalogger/gravimetro//original/140316.txt
+put /media/CAM/datalogger/gravimetro//original/140315.txt
+put /media/CAM/datalogger/gravimetro//original/140314.txt
+put /media/CAM/datalogger/gravimetro//original/140313.txt
+put /media/CAM/datalogger/gravimetro//original/140312.txt
+bye
