@@ -1,0 +1,788 @@
+<http>
+<head>
+
+</head>
+<body>
+
+
+<form action="index.php" method="post">
+	Usuario:<input type="text" name="usuario">
+	Pass: <input type="password" name="clave">
+	<input type="submit" name="enviao" value="envio">
+</form>
+
+<?php
+	global $clave_ok;
+
+?>
+
+
+
+<?php
+	//funcion para descarga de fichero
+	function download_file($archiv)
+	{
+		header('Content-Type: application/octet-stream');
+		header('Content-Disposition: attachment; filename="'.basename($archiv).'"');
+		header('Content-Length: ' . filesize($archiv));
+		header('Content-Transfer-Encoding: binary');
+		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+		header('Pragma: public');
+
+		ob_clean();
+		flush();
+		readfile($archiv);
+		exit;
+	}
+?>
+
+<?php
+	function lee_config_file()
+	{
+		global $ch1,$ch2,$ch3,$muest,$names,$gain,$filter,$lat,$lon,$alt;
+		$BASE_PI = "/home/pi/soft_gravimetro/";
+		$cf = fopen($BASE_PI."configura.txt","r");
+		fscanf($cf,"NAME=%s",$names);
+		fscanf($cf,"CHANNEL1=%s",$ch1);
+		fscanf($cf,"CHANNEL2=%s",$ch2);
+		fscanf($cf,"CHANNEL3=%s",$ch3);
+		fscanf($cf,"MUESTREO=%s",$muest);
+		fscanf($cf,"LAT=%s",$lat);
+		fscanf($cf,"LON=%s",$lon);
+		fscanf($cf,"ALT=%s",$alt);
+
+
+		fclose($cf);
+
+	}
+?>
+
+
+<?php
+	//Mira todos los ficheros de un directorio y los mete en un vector
+
+	global $minch1,$minch2,$minch3,$maxch1,$maxch2,$maxch3,$currentch1,$currentch2,$currentch3,$fecha;
+	global $cch1,$cch2,$cch3,$currentvch1,$currentvch2,$currentvch3;
+	global $anio,$mes,$dia,$hora,$minuto,$segundo;
+	global $difch1,$difch2,$difch3;
+	global $tambmin,$hrelmin,$procmin,$presmin,$tintmin,$pluvmin,$tambmax,$hrelmax,$procmax,$presmax,$tinmax,$pluvmax;
+	global $currenttamb,$currenthrel,$currentproc,$currentpres,$currenttint,$currentpluv;
+	global $aniometeo,$mesmeteo,$diameteo,$horameteo,$minutometeo;
+
+	//Leemos el directorio donde estan los datos del gravimetro
+
+	$BASE = "/media/CAM/datalogger/gravimetro/original/";
+	$directorio = opendir($BASE);
+	while ($archivo = readdir($directorio))
+	{
+		if (!is_dir($archivo))
+		{
+			$lista[] = $archivo;
+		}
+	}
+	sort($lista);
+
+	//leemos el direcotrio donde estan los datos de meteo
+
+	$BASE_METEO = "/media/CAM/datalogger/meteo/original/";
+	$direc = opendir($BASE_METEO);
+	while ($archivo2 = readdir($direc))
+	{
+		if (!is_dir($archivo2))
+		{
+			$lista2[] = $archivo2;
+		}
+	}
+	sort($lista2);
+
+
+	//cuando se pulsa el boton de envio se coge el nombre del fichero y se llama a la 
+	//funcion de descarga
+
+	if (isset($_POST['envio']))
+	{
+		$name = $_POST['ficheros'];
+		$fich=$BASE.$name;
+		download_file($fich);
+	}
+
+	if (isset($_POST['envio2']))
+	{
+		$name2 = $_POST['ficheros2'];
+		$fich2=$BASE_METEO.$name2;
+		download_file($fich2);
+	}
+	//AHORA LEE EL FICHERO DE CONFIGURACIÓN PARA VER QUE ES LO QUE ESTA CHECKED O NO
+	lee_config_file();
+
+
+	if (isset($_POST['config']))
+	{
+		$cf = fopen("/home/pi/soft_gravimetro/configura.txt","w");
+
+		if (!empty($_POST['check1']))
+		{
+			$ch1="ON";
+		}
+		else
+		{
+			$ch1="0FF";
+		}
+		if (!empty($_POST['check2']))
+		{
+			$ch2="ON";
+		}
+		else
+		{
+			$ch2="OFF";
+		}
+		if (!empty($_POST['check3']))
+		{
+			$ch3="ON";
+		}
+		else
+		{
+			$ch3="OFF";
+		}
+
+		$muest=$_POST['muestreo'];
+		$names=$_POST['nombre'];
+		$lat=$_POST['latitud'];
+		$lon=$_POST['longitud'];
+		$alt=$_POST['altitud'];
+		fwrite($cf, "NAME=$names\nCHANNEL1=$ch1\nCHANNEL2=$ch2\nCHANNEL3=$ch3\nMUESTREO=$muest\n");
+		fwrite($cf, "LAT=$lat\nLON=$lon\nALT=$alt\n");
+		fclose($cf);
+
+
+	}
+
+	$today = date("ymd").".txt";
+	$today_meteo = "meteo".date("ymd").".txt";
+	$file_curso = fopen("/media/CAM/datalogger/gravimetro/original/".$today,"r");
+	$file_curso_meteo = fopen("/media/CAM/datalogger/meteo/original/".$today_meteo,"r");
+
+	//ESTADISTICA DEL GRAVIMETRO
+
+	$current_line = fgets($file_curso);
+
+	$tok = strtok($current_line," ");
+	$anio = $tok;
+	$tok = strtok(" ");
+	$mes = $tok;
+	$tok = strtok(" ");
+	$dia = $tok;
+	$tok = strtok(" ");
+	$hora = $tok;
+	$tok = strtok(" ");
+	$minuto = $tok;
+	$tok = strtok(" ");
+	$segundo = $tok;
+	$tok = strtok(" ");
+	$cch1 = $tok;
+	$tok = strtok(" ");
+	$cch2 = $tok;
+	$tok = strtok(" ");
+	$cch3 = $tok;
+	$tok = strtok(" ");
+	$minch1 = $tok;
+	$tok = strtok(" ");
+	$minch2 = $tok;
+	$tok = strtok(" ");
+	$minch3 = $tok;
+
+
+	$maxch1 = $minch1;
+	$maxch2 = $minch2;
+	$maxch3 = $minch3;
+
+	while($current_line = fgets($file_curso))
+	{
+		$tok = strtok($current_line," ");
+		$anio = $tok;
+		$tok = strtok(" ");
+		$mes = $tok;
+		$tok = strtok(" ");
+		$dia = $tok;
+		$tok = strtok(" ");
+		$hora = $tok;
+		$tok = strtok(" ");
+		$minuto = $tok;
+		$tok = strtok(" ");
+		$segundo = $tok;
+		$tok = strtok(" ");
+		$currentch1 = $tok;
+		$tok = strtok(" ");
+		$currentch2 = $tok;
+		$tok = strtok(" ");
+		$currentch3 = $tok;
+		$tok = strtok(" ");
+		$currentvch1 = $tok;
+		$tok = strtok(" ");
+		$currentvch2 = $tok;
+		$tok = strtok(" ");
+		$currentvch3 = $tok;
+
+		//echo "$equis $ys $temp a las $hora:$minuto:$segundo<br>";
+		if($currentvch1 < $minch1)
+		{
+			$minch1 = $currentvch1;
+		}
+		if($currentvch1 > $maxch1)
+		{
+			$maxch1 = $currentvch1;
+		}
+		if($currentvch2 < $minch2)
+		{
+			$minch2 = $currentvch2;
+		}
+		if($currentvch2 > $maxch2)
+		{
+			$maxch2 = $currentvch2;
+		}
+		if($currentvch3 < $minch3)
+		{
+			$minch3 = $currentvch3;
+		}
+		if($currentvch3 > $maxch3)
+		{
+			$maxch3 = $currentvch3;
+		}
+
+
+
+	}
+	$dffch1=abs($maxch1-$minch1);
+	$dffch2=abs($maxch2-$minch2);
+	$dffch3=abs($maxch3-$minch3);
+
+	$difch1=number_format($dffch1,2);
+	$difch2=number_format($dffch2,2);
+	$difch3=number_format($dffch3,2);
+
+	fclose($file_curso);
+
+	//AHORA LA ESTACION DE METEO
+
+	$current_line = fgets($file_curso_meteo);
+
+	$tok = strtok($current_line,",");
+	$fechia = $tok;
+	$tambmin = strtok(",");
+	$hrelmin = strtok(",");
+	$procmin = strtok(",");
+	$presmin = strtok(",");
+	$tintmin = strtok(",");
+	$pluvmin = strtok(",");
+
+	$tambmax = $tambmin;
+	$hrelmax = $hrelmin;
+	$procmax = $procmin;
+	$presmax = $presmin;
+	$tintmax = $tintmin;
+	$pluvmax = $pluvmin;
+
+	$tok = strtok($fechia," ");
+	$deit = $tok;
+	$ora = strtok(" ");
+
+	$tok = strtok($deit,"/");
+	$diameteo = $tok;
+	$mesmeteo = strtok("/");
+	$aniometeo = strtok("/");
+
+	$tok = strtok($ora,":");
+	$horameteo = $tok;
+	$minutometeo = strtok(":");
+
+
+	while($current_line = fgets($file_curso_meteo))
+	{
+
+
+		$tok = strtok($current_line,",");
+		$fechia = $tok;
+		$currenttamb = strtok(",");
+		$currenthrel = strtok(",");
+		$currentproc = strtok(",");
+		$currentpres = strtok(",");
+		$currenttint = strtok(",");
+		$currentpluv = strtok(",");
+
+		$tok = strtok($fechia," ");
+		$deit = $tok;
+		$ora = strtok(" ");
+
+		$tok = strtok($deit,"/");
+		$diameteo = $tok;
+		$mesmeteo = strtok("/");
+		$aniometeo = strtok("/");
+
+		$tok = strtok($ora,":");
+		$horameteo = $tok;
+		$minutometeo = strtok(":");
+
+
+		//echo "$equis $ys $temp a las $hora:$minuto:$segundo<br>";
+		if($currenttamb < $tambmin)
+		{
+			$tambmin = $currenttamb;
+		}
+		if($currenttamb > $tambmax)
+		{
+			$tambmax = $currenttamb;
+		}
+		if($currenthrel < $hrelmin)
+		{
+			$hrelmin = $currenthrel;
+		}
+		if($currenthrel > $hrelmax)
+		{
+			$hrelmax = $currenthrel;
+		}
+
+		if($currentproc < $procmin)
+		{
+			$procmin = $currentproc;
+		}
+		if($currentproc > $procmax)
+		{
+			$procmax = $currentproc;
+		}
+
+		if($currentpres < $presmin)
+		{
+			$presmin = $currentpres;
+		}
+		if($currentpres > $presmax)
+		{
+			$presmax = $currentpres;
+		}
+
+		if($currenttint < $tintmin)
+		{
+			$tintmin = $currenttint;
+		}
+		if($currenttint > $tintmax)
+		{
+			$tintmax = $currenttint;
+		}
+		if($currentpluv < $pluvmin)
+		{
+			$pluvmin = $currentpluv;
+		}
+		if($currentpluv > $pluvmax)
+		{
+			$pluvmax = $currentpluv;
+		}
+
+
+
+	}
+	$dfftamb=abs($tambmax-$tambmin);
+	$dffhrel=abs($hrelmax-$hrelmin);
+	$dffproc=abs($procmax-$procmin);
+	$dffpres=abs($presmax-$presmin);
+	$dfftint=abs($tintmax-$teintmin);
+	$dffpluv=abs($pluvmax-$pluvmin);
+
+	$diftamb=number_format($dfftamb,2);
+	$difhrel=number_format($dffhrel,2);
+	$difproc=number_format($dffproc,2);
+	$difpres=number_format($dffpres,2);
+	$diftint=number_format($dfftint,2);
+	$difpluv=number_format($dffpluv,2);
+
+	fclose($file_curso_meteo);
+
+?>
+
+<?	if(isset($_POST['enviao']))
+	{
+		$us = $_POST['usuario'];
+		$cl = $_POST['clave'];
+		$mius = "ign";
+		$miclave = "ignfomento";
+		if($us == $mius && $cl == $miclave)
+		{
+?>
+
+
+
+
+
+<form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+
+	<center>
+	<?php
+	echo "<h1>GRAV&Iacute;METRO (".$names.")</h1>";
+	?>
+	<iframe src="./gravimetro.html" width=1024 height=500 frameborder=0 scrolling=no>
+	</iframe>
+	<?php
+		if($ch3=="ON")
+		{
+			echo "<iframe src=./bateria.html width=1024 height=500 frameborder=0 scrolling=no>";
+			echo "</iframe>";
+		}
+
+	?>
+
+	<h2>Archivos diarios</h2>
+	<div style="float:left;width:100%">
+	<select size="1" name="ficheros">
+
+	<?php
+		for ($i=0;$i<count($lista);$i++)
+		{
+			echo "<option>".$lista[$i]."</option><br>";
+		}
+
+	?>
+
+	</select>
+	<input type="submit" name="envio" value="Descarga">
+	</div>
+
+	<div style="float:left;width:100%">
+	<iframe src="./meteo.html" width=1024 height=500 frameborder=0 scrolling=no>
+	</iframe>
+	</div>
+
+	<div style="float:left;width:100%">
+	<iframe src="./humedad.html" width=1024 height=500 frameborder=0 scrolling=no>
+	</iframe>
+	</div>
+
+	<div style="float:left;width:100%">
+	<iframe src="./presion.html" width=1024 height=500 frameborder=0 scrolling=no>
+	</iframe>
+	</div>
+
+	<h2>Archivos diarios</h2>
+	<div style="float:left;width:100%">
+	<select size="1" name="ficheros2">
+
+	<?php
+		for ($i=0;$i<count($lista2);$i++)
+		{
+			echo "<option>".$lista2[$i]."</option><br>";
+		}
+
+	?>
+
+	</select>
+	<input type="submit" name="envio2" value="Descarga">
+	</div>
+
+	</center>
+
+	<div style="float:left;width:100%">
+
+		<div style="float:left;width:50%">
+			<div style="float:left; width:100%">
+				<h2 align="center">Configuraci&oacute;n</h2>
+			</div>
+			<div style="float:left; width:10%">
+			<p> </p>
+			</div>
+			<div style="border-style:solid; border-color:#CCCCCC; border-width:thin; width:80%; float:left">
+				<div style="float:left; width:100%">
+				<h3 align="center">Grav&iacute;metro</h3>
+				</div>
+				<div style="float:left;width:100%">
+					<div style="float:left;width:45%">
+						<p align="right">Nombre de la estaci&oacute;n: </p>
+					</div>
+					<div style="width:45%;float:right">
+					<p align="left">
+					<?php
+						echo "<input type="."text"." size=15 name=nombre value=$names aling=left>"
+					?>
+					</p>
+					</div>
+				</div>
+				<div style="float:left;width:100%">
+					<div style="width:45%;float:left">
+						<p align="right">Selecci&oacute;n de canales: </p>
+					</div>
+					<div style="width:45%;float:right">
+						<p align="left">
+						<?php
+
+							if($ch1=="ON")
+							{
+								echo "<input type="."checkbox"." name="."check1"." checked>CANAL 1<br>";
+							}
+							else
+							{
+								echo "<input type="."checkbox"." name="."check1"." >CANAL 1<br>";
+							}
+							if($ch2=="ON")
+							{
+								echo "<input type="."checkbox"." name="."check2"." checked>CANAL 2<br>";
+							}
+							else
+							{
+								echo "<input type="."checkbox"." name="."check2"." >CANAL 2<br>";
+							}
+							if($ch3=="ON")
+							{
+								echo "<input type="."checkbox"." name="."check3"." checked>CANAL 3<br>";
+							}
+							else
+							{
+								echo "<input type="."checkbox"." name="."check3"." >CANAL 3<br>";
+							}
+						?>
+					</div>
+
+				</div>
+				<div style="float:left;width:100%">
+					<div style="float:left;width:45%">
+						<p align="right">Muestreo (en minutos):</p>
+					</div>
+					<div style="float:right;width:45%">
+						<p align="left">
+						<?php
+							echo "<input type=text size=15 name=muestreo value=$muest><br>";
+						?>
+						</p>
+					</div>
+
+
+
+				</div>
+
+				<div style="float:left; width:100%">
+				<h3 align="center">Meteo</h3>
+				</div>
+				<div style="float:left; width:100%">
+				<p>aqui va la config para meteo</p>
+				</div>
+
+				<div style="float:left; width:100%">
+					<h3 align="center">Localizaci&oacute;n</h3>
+				</div>
+				<div style="float:left; width:100%">
+					<div style="float:left; width:45%">
+						<p align="center">LAT</p>
+					</div>
+					<div style="float:right;width:45%">
+						<p align="left">
+						<?php
+							echo "<input type=text size=15 name=latitud value=$lat>";
+						?>
+						</p>
+					</div>
+				</div>
+				<div style="float:left; width:100%">
+					<div style="float:left; width:45%">
+						<p align="center">LON</p>
+					</div>
+					<div style="float:right;width:45%">
+						<p align="left">
+						<?php
+							echo "<input type=text size=15 name=longitud value=$lon>";
+						?>
+						</p>
+					</div>
+				</div>
+				<div style="float:left; width:100%">
+					<div style="float:left; width:45%">
+						<p align="center">ALT</p>
+					</div>
+					<div style="float:right;width:45%">
+						<p align="left">
+						<?php
+							echo "<input type=text size=15 name=altitud value=$alt>";
+						?>
+						</p>
+					</div>
+				</div>
+				<div style="float:left;width:100%">
+					<p align="center">
+					<input type="submit" name="config" value="Enviar"><br>
+					</p>
+				</div>
+
+
+
+
+			</div>
+		</div>
+
+		<div style="float:left;width:50%">
+			<div style="float:right:width:100%">
+				<h2 align="center">Informaci&oacute;n</h2>
+			</div>
+
+			<div style="float:left; width:10%">
+				<p> </p>
+			</div>
+
+			<div style="border-style:solid; border-color:#CCCCCC; border-width:thin; width:80%;float:left">
+				<div style="width:100%">
+					<h2 align="center"><b>Datos actuales</b></h2>
+				</div>
+				<div style="float:left;width:45%">
+				</div>
+				<div style="float:right;width:45%">
+					<?php
+					?>
+				</div>
+				<div style="width:100%">
+					<h3 align="center"><b>Grav&iacute;metro</b></h3>
+				</div>
+				<div style="float:left;width:45%">
+					<p align="center"><b>Fecha</b></p>
+					<p align="center"><b>ch1 (mV)</b></p>
+					<p align="center"><b>ch2 (mV)</b></p>
+					<p align="center"><b>ch3 (mV)</b></p>
+				</div>
+				<div style="float:right;width:45%">
+					<?php
+					echo "<p align=center style=color:green><b>$dia/$mes/$anio $hora:$minuto:$segundo</p>";
+					echo "<p align=center style=color:green>$currentvch1</p>";
+					echo "<p align=center style=color:green>$currentvch2</p>";
+					echo "<p align=center style=color:green>$currentvch3</b></p>";
+					?>
+				</div>
+				<div style="float:left;width:100%">
+					<h3 align="center"><b>Meteo</b></h3>
+				</div>
+				<div style="float:left;width:45%">
+					<p align="center"><b>Fecha</b></p>
+					<p align="center"><b>T ambiente (&degC)</b></p>
+					<p align="center"><b>T interna (&degC)</b></p>
+					<p align="center"><b>H realtiva (%)</b></p>
+					<p align="center"><b>P roc&iacute;o (&degC)</b></p>
+					<p align="center"><b>Presi&oacute;n (mbar)</b></p>
+				</div>
+
+				<div style="float:right;width:45%">
+					<?php
+					echo "<p align=center style=color:green><b>$diameteo/$mesmeteo/$aniometeo $horameteo:$minutometeo</p>";
+					echo "<p align=center style=color:green>$currenttamb</p>";
+					echo "<p align=center style=color:green>$currenttint</p>";
+					echo "<p align=center style=color:green>$currenthrel</p>";
+					echo "<p align=center style=color:green>$currentproc</p>";
+					echo "<p align=center style=color:green>$currentpres</p>";
+					?>
+				</div>
+
+
+
+				<div style="float:left;width:100%">
+					<h2 align="center"><b>Estad&iacute;sticas</b></h2>
+				</div>
+				<div style="float:left; width:100%">
+					<h3 align="center">Grav&iacutemetro</h3>
+				</div>
+
+				<div style="float:left;width:100%">
+					<div style="float:left;width:22%;">
+						<p align="center"> </p>
+					</div>
+					<div style="float:left;width:23%;">
+						<p align="center"><b>Min</b></p>
+					</div>
+					<div style="float:left;width:23%;">
+						<p align="center"><b>Max</b></p>
+					</div>
+					<div style="float:left;width:23%;">
+						<p align="center"><b>Dif</b></p>
+					</div>
+				</div>
+				<div style="float:left;width:100%">
+					<div style="float:left;width:22%;">
+					<p align="center"><b>ch1 (mV)</b></p>
+					<p align="center"><b>ch2 (mV)</b></p>
+					<p align="center"><b>ch3 (mV)</b></p>
+					</div>
+					<div style="float:left;width:23%;">
+						<?php
+						echo "<p align=center style=color:green><b>$minch1</b></p>";
+						echo "<p align=center style=color:green><b>$minch2</b></p>";
+						echo "<p align=center style=color:green><b>$minch3</b></p>";
+						?>
+					</div>
+					<div style="float:left;width:23%">
+						<?php
+						echo "<p align=center style=color:green><b>$maxch1</b></p>";
+						echo "<p align=center style=color:green><b>$maxch2</b></p>";
+						echo "<p align=center style=color:green><b>$maxch3</b></p>";
+						?>
+					</div>
+					<div style="float:left;width:23%;">
+						<?php
+						echo "<p align=center style=color:green><b>$difch1</b></p>";
+						echo "<p align=center style=color:green><b>$difch2</b></p>";
+						echo "<p align=center style=color:green><b>$difch3</b></p>";
+						?>
+					</div>
+				</div>
+
+				<div style="float:left; width:100%">
+					<h3 align="center">Meteo</h3>
+				</div>
+
+				<div style="float:left;width:100%">
+					<div style="float:left;width:22%;">
+						<p align="center"><b>T ambiente (&degC)</b></p>
+						<p align="center"><b>T internat (&degC)</b></p>
+						<p align="center"><b>H relativa (%)</b></p>
+						<p align="center"><b>P roc&iacute;o (&degC)</b></p>
+						<p align="center"><b>Presi&oacute;n (mbar)</b></p>
+					</div>
+
+					<div style="float:left;width:23%">
+						<?php
+						echo "<p align=center style=color:green><b>$tambmin</b></p>";
+						echo "<p align=center style=color:green><b>$tintmin</b></p>";
+						echo "<p align=center style=color:green><b>$hrelmin</b></p>";
+						echo "<p align=center style=color:green><b>$procmin</b></p>";
+						echo "<p align=center style=color:green><b>$presmin</b></p>";
+						?>
+					</div>
+					<div style="float:left;width:23%">
+						<?php
+						echo "<p align=center style=color:green><b>$tambmax</b></p>";
+						echo "<p align=center style=color:green><b>$tintmax</b></p>";
+						echo "<p align=center style=color:green><b>$hrelmax</b></p>";
+						echo "<p align=center style=color:green><b>$procmax</b></p>";
+						echo "<p align=center style=color:green><b>$presmax</b></p>";
+						?>
+					</div>
+
+					<div style="float:left;width:23%;">
+						<?php
+						echo "<p align=center style=color:green><b>$diftamb</b></p>";
+						echo "<p align=center style=color:green><b>$diftint</b></p>";
+						echo "<p align=center style=color:green><b>$difhrel</b></p>";
+						echo "<p align=center style=color:green><b>$difproc</b></p>";
+						echo "<p align=center style=color:green><b>$difpres</b></p>";
+						?>
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+
+
+
+	<div style="width:100%">
+
+	</div>
+
+
+	<div style="float:left;width:100%;">
+		<p align=center>Copyleft IGN 2014 </p>
+	</div>
+</form>
+<?	}else{echo "incorrecto";}}?>
+</body>
+</head>
