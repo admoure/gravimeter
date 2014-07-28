@@ -1,0 +1,6 @@
+debug -o debug.txt
+open 65.254.250.102
+user admoure "&admoure11"
+cd meteo
+put /media/CAM/datalogger/meteo//encurso/meteo140122.txt
+bye
