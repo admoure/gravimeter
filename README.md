@@ -19,5 +19,5 @@ INSTRUCCIONES
     - cd wiringPi
     - ./build
   - Terminal puerto serie minicom (apt-get install minicom)
-- Hacer -> git clone https://github.com/admoure/clinometer.git && cd clinometer
+- Hacer -> git clone https://github.com/admoure/gravimeter.git && cd gravimeter
 - Ejecutar el instalador (./install.sh)
