@@ -1,0 +1,31 @@
+#!/bin/sh
+# /etc/init.d/meteo
+
+### BEGIN INIT INFO
+# Provides:		meteo
+# Required-Start:	$all
+# Required-Stop:	$remote_fs $syslog
+# Default-Start:	2 3 4 5
+# Default-Stop:		0 1 6
+# Short-Description:	simple script para lanzar el tema
+# Description:		script que lanza el tema
+### END INIT INFO
+case "$1" in
+	start)
+	  echo "Lanzando meteo"
+		#se arranca la aplicacion
+	  /home/pi/soft_meteo/meteo
+	  ;;
+	stop)
+	  echo "Parando meteo"
+		#nos cargamos la aplicacion
+	  killall meteo
+	  ;;
+	*)
+	  echo "Usage: /etc/init.d/meteo_serial {start|stop}"
+	  exit 1
+	  ;;
+esac
+
+exit 0
+
